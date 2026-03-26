@@ -153,19 +153,19 @@ ul{list-style:none}
 .nav-name strong{display:block;color:var(--ink);font-size:14.5px;font-weight:700}
 .nav-name span{color:var(--teal);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase}
 .nav-links{display:flex;align-items:center;gap:2px}
-.nav-links a,.nav-links button{color:var(--gray);font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;transition:var(--t);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.nav-links a,.nav-links button{color:var(--gray);font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:6px;transition:var(--t);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:rgba(0,0,0,0);touch-action:manipulation}
 .nav-links a:hover,.nav-links button:hover{color:var(--teal);background:var(--teal3)}
 .nav-actions{display:flex;align-items:center;gap:11px;flex-shrink:0}
 .nav-phone{color:var(--teal);font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px}
 .nav-phone svg{width:15px;height:15px}
-.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:5px}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:5px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .hamburger span{display:block;width:22px;height:2.5px;background:var(--ink);border-radius:2px;transition:var(--t)}
 .hamburger.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
 .mobile-menu{display:none;background:#fff;border-top:1px solid var(--border);padding:12px 24px 20px}
 .mobile-menu.open{display:block}
-.mobile-menu a,.mobile-menu button{display:block;width:100%;text-align:left;color:var(--gray);font-size:15px;font-weight:500;padding:12px 0;border-bottom:1px solid var(--off2);background:none;border-right:none;border-left:none;border-top:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.mobile-menu a,.mobile-menu button{display:block;width:100%;text-align:left;color:var(--gray);font-size:15px;font-weight:500;padding:12px 0;border-bottom:1px solid var(--off2);background:none;border-right:none;border-left:none;border-top:none;cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .mobile-menu a:last-of-type{border-bottom:none}
 .mob-cta{margin-top:16px;display:flex;flex-direction:column;gap:10px}
 
@@ -627,17 +627,17 @@ footer{background:var(--ink);padding:56px 0 0}
     </div>
   </div>
   <div class="mobile-menu" id="mobile-menu">
-    <a href="#about" onclick="goTo('home','about');closeMobileMenu();return false;">About Us</a>
-    <a href="#services" onclick="goTo('home','services');closeMobileMenu();return false;">Services</a>
-    <a href="#credentialing" onclick="goTo('credentialing',null);closeMobileMenu();return false;">Credentialing & Payer Enrollment</a>
-    <a href="#pt" onclick="goTo('pt',null);closeMobileMenu();return false;">Physical Therapy Billing</a>
-    <a href="#bh" onclick="goTo('bh',null);closeMobileMenu();return false;">Behavioral Health Billing</a>
-    <a href="#pricing" onclick="goTo('home','pricing');closeMobileMenu();return false;">Pricing</a>
-    <a href="#faq" onclick="goTo('home','faq');closeMobileMenu();return false;">FAQs</a>
-    <a href="#contact" onclick="goTo('home','contact');closeMobileMenu();return false;">Contact</a>
+    <a href="#about" class="mob-link" data-page="home" data-section="about">About Us</a>
+    <a href="#services" class="mob-link" data-page="home" data-section="services">Services</a>
+    <a href="#credentialing" class="mob-link" data-page="credentialing" data-section="">Credentialing &amp; Payer Enrollment</a>
+    <a href="#pt" class="mob-link" data-page="pt" data-section="">Physical Therapy Billing</a>
+    <a href="#bh" class="mob-link" data-page="bh" data-section="">Behavioral Health Billing</a>
+    <a href="#pricing" class="mob-link" data-page="home" data-section="pricing">Pricing</a>
+    <a href="#faq" class="mob-link" data-page="home" data-section="faq">FAQs</a>
+    <a href="#contact" class="mob-link" data-page="home" data-section="contact">Contact</a>
     <div class="mob-cta">
       <a href="tel:9144496970" class="btn btn-ink" style="justify-content:center">📞 Call 914-449-6970</a>
-      <a href="#contact" onclick="goTo('home','contact');closeMobileMenu();return false;" class="btn btn-teal" style="justify-content:center">Start Free 30-Day Pilot</a>
+      <a href="#contact" class="mob-link btn btn-teal" data-page="home" data-section="contact" style="justify-content:center">Start Free 30-Day Pilot</a>
     </div>
   </div>
 </nav>
@@ -1457,17 +1457,38 @@ window.addEventListener('scroll', () => {
   document.getElementById('scrolltop').classList.toggle('visible', window.scrollY > 400);
 });
 
-ham.addEventListener('click', () => {
+// ── Hamburger — works on both click and touch ──
+function toggleMobileMenu(e) {
+  e.preventDefault();
+  e.stopPropagation();
   const open = mob.classList.toggle('open');
   ham.classList.toggle('open', open);
   ham.setAttribute('aria-expanded', open);
-});
+}
+ham.addEventListener('click', toggleMobileMenu);
+ham.addEventListener('touchend', toggleMobileMenu, {passive: false});
 
 function closeMobileMenu() {
   mob.classList.remove('open');
   ham.classList.remove('open');
   ham.setAttribute('aria-expanded', 'false');
 }
+
+// ── Mobile menu links — use touchend for instant response on mobile ──
+document.querySelectorAll('.mob-link').forEach(link => {
+  function handleMobLink(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const page = link.getAttribute('data-page');
+    const section = link.getAttribute('data-section') || null;
+    closeMobileMenu();
+    setTimeout(() => {
+      goTo(page, section || null);
+    }, 80);
+  }
+  link.addEventListener('touchend', handleMobLink, {passive: false});
+  link.addEventListener('click', handleMobLink);
+});
 
 document.getElementById('scrolltop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
 
