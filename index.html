@@ -614,7 +614,6 @@ footer{background:var(--ink);padding:56px 0 0}
       <div class="nav-links">
         <a href="#about" onclick="goTo('home','about');return false;">About</a>
         <a href="#services" onclick="goTo('home','services');return false;">Services</a>
-        <a href="#credentialing" onclick="goTo('credentialing',null);return false;">Credentialing</a>
         <a href="#specialties" onclick="goTo('home','specialties');return false;">Specialties</a>
         <a href="#pricing" onclick="goTo('home','pricing');return false;">Pricing</a>
         <a href="#faq" onclick="goTo('home','faq');return false;">FAQs</a>
@@ -1820,13 +1819,58 @@ document.querySelectorAll('.mob-link').forEach(link => {
 
 document.getElementById('scrolltop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
 
-// ── FAQ ──
+// ── FAQ Accordion — works on desktop and mobile touch ──
 document.querySelectorAll('.faq-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
+  function faqToggle(e) {
+    e.preventDefault();
+    e.stopPropagation();
     const item = btn.closest('.faq-item');
     const isOpen = item.classList.contains('open');
     document.querySelectorAll('.faq-item.open').forEach(i => {
       i.classList.remove('open');
       i.querySelector('.faq-btn').setAttribute('aria-expanded','false');
     });
-    if (!isOpen) { item.classList.add('open');
+    if (!isOpen) {
+      item.classList.add('open');
+      btn.setAttribute('aria-expanded','true');
+    }
+  }
+  btn.addEventListener('click', faqToggle);
+  btn.addEventListener('touchend', faqToggle, {passive: false});
+});
+
+// ── REVEAL on scroll ──
+try {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); }});
+  }, {threshold: 0.05, rootMargin: '0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+} catch(e) {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+}
+
+// ── Animate performance bars ──
+try {
+  const barObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.getAttribute('data-w') + '%'; });
+        barObs.unobserve(e.target);
+      }
+    });
+  }, {threshold: 0.2});
+  const whySec = document.getElementById('why');
+  if (whySec) barObs.observe(whySec);
+} catch(e) {}
+
+// ── Smooth anchor scroll ──
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); window.scrollTo({top: t.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth'}); }
+  });
+});
+
+</script>
+</body>
+</html>
